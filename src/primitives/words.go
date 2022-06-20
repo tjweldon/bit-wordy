@@ -1,6 +1,12 @@
-package patterns
+package primitives
 
-import "fmt"
+import (
+	"bytes"
+	"fmt"
+	"io/ioutil"
+	"log"
+	"os"
+)
 
 // Fivegram is a Word with five letters
 type Fivegram [5]byte
@@ -32,6 +38,37 @@ func (f Fivegram) Matches(other Fivegram) Pattern {
 
 // Dictionary is a collection of Fivegrams
 type Dictionary []Fivegram
+
+// LoadWords pulls the content of the words file into memory
+func LoadWords() (dict Dictionary) {
+	file, err := os.Open("./data/words")
+	if err != nil {
+		log.Fatal(err)
+	}
+	content, err := ioutil.ReadAll(file)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	lines := bytes.Split(content, []byte{'\n'})
+
+	for _, line := range lines {
+		if len(line) != 5 {
+			continue
+		}
+		var word Fivegram
+		for i := range word {
+			word[i] = line[i]
+		}
+
+		dict = append(
+			dict,
+			word,
+		)
+	}
+
+	return dict
+}
 
 // Result is the word and its corresponding pattern as compared to some input
 type Result struct {

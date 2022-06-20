@@ -19,7 +19,7 @@ func (b Bar) String() string {
 	}
 
 	for _, s := range samples {
-		render += s.String()
+		render += s.String() + "-"
 	}
 
 	return render + "\n"

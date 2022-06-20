@@ -1,4 +1,4 @@
-package patterns
+package primitives
 
 import "sort"
 

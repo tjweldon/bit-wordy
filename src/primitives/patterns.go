@@ -1,4 +1,4 @@
-package patterns
+package primitives
 
 import "github.com/fatih/color"
 
@@ -57,7 +57,10 @@ func (p Pattern) Sum() (s int) {
 	return s
 }
 
-var DefPattern = Pattern{Grey, Grey, Grey, Grey, Grey}
+var (
+	DefPattern = Pattern{Grey, Grey, Grey, Grey, Grey}
+	Win        = Pattern{Green, Green, Green, Green, Green}
+)
 
 // Matches computes the pattern for each word in the dictionary and returns them
 func Matches(guess Fivegram, dict Dictionary) ResultSet {
