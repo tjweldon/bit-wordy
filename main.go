@@ -56,11 +56,45 @@ func (pf PatternFrequency) String() (s string) {
 }
 
 func chooseAnswer() primitives.Fivegram {
-	return words[int(time.Now().UnixNano())%len(words)]
+	return words[int(time.Now().UnixMilli())%len(words)]
 }
 
 func main() {
+	// guess := primitives.FromStr("tares")
+	// ans := primitives.FromStr("races")
+	// fmt.Println(guess.CheckGuess(ans))
+	// fmt.Println(ans.CheckGuess(guess))
 
+	// DoSplat()
+	// s := splat.ReadSplat()
+	// for i := range words[:100] {
+	// 	for j := range words[:100] {
+	// 		b1 := s.PatternByte(i, j)
+	// 		b2 := s.PatternByte(j, i)
+	// 		if b1 != b2 {
+	// 			fmt.Printf("(%2d, %2d): %d\n", i, j, s.PatternByte(i, j))
+	// 		}
+	// 	}
+	// 	for j := 0; j < i; j++ {
+	// 		if s.PatternByte(i, j) != s.PatternByte(j, i) {
+	// 			fmt.Println([2]int{i, j})
+	// 		}
+	// 	}
+	// }
+
+	DoSplat()
+	// s := splat.ReadSplat(len(words))
+	// answer = chooseAnswer()
+	// guess := primitives.FromStr("abbey")
+	// p := answer.CheckGuess(guess)
+	//
+	// idx, ok := words.IndexOf(guess)
+	// if !ok {
+	// 	fmt.Println("bricked")
+	// }
+	// s2 := s.RefineBy(idx, p.Byte())
+	//
+	// fmt.Println(s2)
 }
 
 func DoSplat() {
@@ -71,10 +105,12 @@ func DoSplat() {
 	defer out.Close()
 
 	writer := bufio.NewWriter(out)
-	for _, word := range words {
-		for _, werd := range words {
-			writer.WriteByte(byte(word.Matches(werd).Sum()))
+	for _, guess := range words {
+		row := make([]byte, len(words))
+		for i, secret := range words {
+			row[i] = secret.CheckGuess(guess).Byte()
 		}
+		writer.Write(row)
 		writer.Flush()
 	}
 }

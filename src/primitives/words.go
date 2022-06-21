@@ -11,6 +11,21 @@ import (
 // Fivegram is a Word with five letters
 type Fivegram [5]byte
 
+// FromStr uses the first five bytes of the input string to populate a fivegram,
+// if there are less than five, the remaining bytes are null
+func FromStr(s string) Fivegram {
+	res := Fivegram{}
+	input := []byte(s)
+	if len(input) < 5 {
+		input = append(input, make([]byte, 5-len(input))...)
+	}
+	for i, b := range input {
+		res[i] = b
+	}
+
+	return res
+}
+
 // Contains returns true if the Fivegram Contains the character
 func (f Fivegram) Contains(character byte) bool {
 	for _, letter := range f {
@@ -21,14 +36,14 @@ func (f Fivegram) Contains(character byte) bool {
 	return false
 }
 
-// Matches returns the Pattern when a guess is compared to any other Fivegram
-func (f Fivegram) Matches(other Fivegram) Pattern {
+// CheckGuess returns the Pattern when a guess is compared to any other Fivegram
+func (f Fivegram) CheckGuess(guess Fivegram) Pattern {
 	p := DefPattern
 	for i := range p {
-		if f.Contains(other[i]) {
+		if f.Contains(guess[i]) {
 			p[i] = Yellow
 		}
-		if other[i] == f[i] {
+		if guess[i] == f[i] {
 			p[i] = Green
 		}
 	}
@@ -68,6 +83,17 @@ func LoadWords() (dict Dictionary) {
 	}
 
 	return dict
+}
+
+// IndexOf returns the index of a Fivegram in the Dictionary
+func (d Dictionary) IndexOf(word Fivegram) (idx int, ok bool) {
+	for i, w := range d {
+		if w == word {
+			return i, true
+		}
+	}
+
+	return -1, false
 }
 
 // Result is the word and its corresponding pattern as compared to some input

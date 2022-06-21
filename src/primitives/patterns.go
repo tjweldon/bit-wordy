@@ -21,24 +21,12 @@ const (
 	Green = Color(color.BgGreen)
 )
 
+const PatternCardinality = 243
+
 // Pattern is the letter Result
 type Pattern [5]Color
 
 func PatternFrom[T int | byte](i T) Pattern {
-	p := DefPattern
-	j := 0
-	cols := []Color{Grey, Yellow, Green}
-	for i > 0 {
-		digit := i % 3
-		i = (i - digit) / 3
-		p[j] = cols[digit]
-		j++
-	}
-
-	return p
-}
-
-func Frombyte(i byte) Pattern {
 	p := DefPattern
 	j := 0
 	cols := []Color{Grey, Yellow, Green}
@@ -71,6 +59,14 @@ func (p Pattern) Sum() (s int8) {
 	return s
 }
 
+func (p Pattern) Byte() byte {
+	return byte(p.Sum())
+}
+
+func (p Pattern) String() string {
+	return Result{Word: FromStr("#####"), Pattern: p}.String()
+}
+
 var (
 	DefPattern = Pattern{Grey, Grey, Grey, Grey, Grey}
 	Win        = Pattern{Green, Green, Green, Green, Green}
@@ -84,7 +80,7 @@ func Matches(guess Fivegram, dict Dictionary) ResultSet {
 			results,
 			Result{
 				Word:    word,
-				Pattern: word.Matches(guess),
+				Pattern: word.CheckGuess(guess),
 			},
 		)
 	}

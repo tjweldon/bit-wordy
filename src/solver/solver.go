@@ -59,7 +59,7 @@ func (s *Solver) Solve() *games.Game {
 		// refine possible answers based on pattern
 		remainingAnswers = primitives.Dictionary{}
 		for _, word := range s.possibleAnswers {
-			pattern := guess.Matches(word)
+			pattern := guess.CheckGuess(word)
 			if pattern == lastPattern && word != guess {
 				remainingAnswers = append(remainingAnswers, word)
 			}

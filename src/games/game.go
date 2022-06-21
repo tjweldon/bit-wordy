@@ -28,7 +28,7 @@ func (g Game) String() string {
 // Guess is the function corresponding to a single attempt to guess
 // the answer
 func (g *Game) Guess(word primitives.Fivegram) primitives.Pattern {
-	pattern := word.Matches(g.Answer)
+	pattern := word.CheckGuess(g.Answer)
 
 	result := primitives.Result{Word: word, Pattern: pattern}
 	g.Results = append(g.Results, result)
