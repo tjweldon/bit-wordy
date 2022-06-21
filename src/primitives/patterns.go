@@ -24,7 +24,7 @@ const (
 // Pattern is the letter Result
 type Pattern [5]Color
 
-func FromInt(i int) Pattern {
+func PatternFrom[T int | byte](i T) Pattern {
 	p := DefPattern
 	j := 0
 	cols := []Color{Grey, Yellow, Green}
@@ -38,10 +38,24 @@ func FromInt(i int) Pattern {
 	return p
 }
 
-func (p Pattern) Sum() (s int) {
-	base := [5]int{1, 3, 9, 27, 81}
+func Frombyte(i byte) Pattern {
+	p := DefPattern
+	j := 0
+	cols := []Color{Grey, Yellow, Green}
+	for i > 0 {
+		digit := i % 3
+		i = (i - digit) / 3
+		p[j] = cols[digit]
+		j++
+	}
+
+	return p
+}
+
+func (p Pattern) Sum() (s int8) {
+	base := [5]int8{1, 3, 9, 27, 81}
 	for i, color := range p {
-		var digit int
+		var digit int8
 		switch color {
 		case Green:
 			digit = 2

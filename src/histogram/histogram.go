@@ -30,7 +30,7 @@ type Histogram map[patterns.Pattern]Bar
 func (h Histogram) String() string {
 	s := ""
 	for i := 0; i < (3 * 3 * 3 * 3 * 3); i++ {
-		p := patterns.FromInt(i)
+		p := patterns.PatternFrom(i)
 		if bar, exists := h[p]; exists {
 			s += fmt.Sprintf("id: %4d - %s", p.Sum(), bar)
 		}

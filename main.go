@@ -2,19 +2,15 @@ package main
 
 import (
 	"bit-wordy/src/games"
-	"bit-wordy/src/histogram"
 	"bit-wordy/src/primitives"
 	"bit-wordy/src/solver"
+	"bufio"
 	"fmt"
-	"github.com/manifoldco/promptui"
 	"log"
+	"os"
 	"strings"
 	"time"
 )
-
-var patternSum = func(rowA, rowB *primitives.Result) bool {
-	return rowA.Pattern.Sum() < rowB.Pattern.Sum()
-}
 
 var words = primitives.LoadWords()
 
@@ -59,24 +55,37 @@ func (pf PatternFrequency) String() (s string) {
 	return s
 }
 
-func sum(all ...float64) (total float64) {
-	for _, term := range all {
-		total += term
-	}
-	return total
+func chooseAnswer() primitives.Fivegram {
+	return words[int(time.Now().UnixNano())%len(words)]
 }
 
 func main() {
+
+}
+
+func DoSplat() {
+	out, err := os.OpenFile("data/splat", os.O_CREATE|os.O_TRUNC|os.O_RDWR, 0o744)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer out.Close()
+
+	writer := bufio.NewWriter(out)
+	for _, word := range words {
+		for _, werd := range words {
+			writer.WriteByte(byte(word.Matches(werd).Sum()))
+		}
+		writer.Flush()
+	}
+}
+
+func solveBatch(iterations int) {
+
 	hist := map[int]int{}
 	for i := 0; i < 20; i++ {
 		hist[i] = 0
 	}
 
-	chooseAnswer := func() primitives.Fivegram {
-		return words[int(time.Now().UnixNano())%len(words)]
-	}
-
-	const iterations = 2000
 	solvers := make([]*solver.Solver, iterations)
 	for i := range solvers {
 		solvers[i] = solver.NewSolver(games.NewGame(chooseAnswer()), words)
@@ -86,10 +95,6 @@ func main() {
 		solvers[j].Solve()
 		hist[solvers[j].GameScore()]++
 		fmt.Printf("%-2d%%\r", (100*j)/iterations)
-		// if j%10 == 0 {
-		// }
-		// fmt.Println(solvers[j])
-		// fmt.Println()
 	}
 
 	fmt.Println("Game score distribution")
@@ -101,75 +106,9 @@ func main() {
 
 		fmt.Printf("%2d |%s %3d\n", gameScore, strings.Repeat("█", times/2), times)
 	}
-
-	// game := games.NewGame(chooseAnswer())
-	// s := solver.NewSolver(game, words)
-	// s.Solve()
-	// fmt.Println(s)
-
-	// Wordle()
 }
 
-func Wordle() {
-	possibleAnswers := words
-	fmt.Printf("%s\n", answer)
-	var (
-		guess   primitives.Result
-		guesses []primitives.Result
-	)
-	for guess.Word != answer {
-		guess = userGuess()
-		guesses = append(guesses, guess)
-		allPatterns := primitives.Matches(guess.Word, possibleAnswers)
-		hist := buildHistogram(allPatterns)
-		bar := hist[guess.Pattern]
-		newWords := make(primitives.Dictionary, len(bar))
-		for i, res := range bar {
-			newWords[i] = res.Word
-		}
-		possibleAnswers = newWords
-
-		for _, g := range guesses {
-			fmt.Println(g)
-		}
-	}
-}
-
-func userGuess() primitives.Result {
-	guessPrompt := promptui.Prompt{
-		Label: "Guess",
-		Validate: func(s string) error {
-			for _, r := range s {
-				if !strings.Contains("abcdefghijklmnopqrstuvwxyz", string(r)) {
-					return fmt.Errorf("Guess must match pattern /[a-z]{5}/")
-				}
-			}
-			return nil
-		},
-	}
-	guessStr, err := guessPrompt.Run()
-
-	if err != nil {
-		log.Fatalf("%v\n", err)
-	}
-	guess := primitives.Fivegram{}
-	for i := range guess {
-		guess[i] = guessStr[i]
-	}
-
-	answerResult := primitives.Result{Word: guess, Pattern: answer.Matches(guess)}
-	return answerResult
-}
-
-func buildHistogram(asSlice primitives.ResultSet) histogram.Histogram {
-	hist := histogram.Histogram{}
-	for i := 0; i < 3*3*3*3*3; i++ {
-		hist[primitives.FromInt(i)] = histogram.Bar{}
-	}
-	for _, res := range asSlice {
-		bar := hist[res.Pattern]
-		bar = append(bar, res)
-		hist[res.Pattern] = bar
-	}
-	return hist
+func solveOne() {
+	s := solver.NewSolver(games.NewGame(chooseAnswer()), words)
+	s.Solve()
 }

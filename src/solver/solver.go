@@ -72,8 +72,6 @@ func (s *Solver) Solve() *games.Game {
 			break
 		} else if s.Game.IsLost() {
 			// We ran out of guesses.
-			fmt.Println("Bricked it.")
-			fmt.Println(s.Game)
 			break
 		} else if len(remainingAnswers) <= 0 {
 			// We eliminated all possible answers. This implies some of our guesses
@@ -165,7 +163,7 @@ func Probabilities(
 
 	p := make([]float64, util.Pow(3, 5))
 	for i := range p {
-		frequency, ok := distinct[primitives.FromInt(i)]
+		frequency, ok := distinct[primitives.PatternFrom(i)]
 		if !ok {
 			frequency = 0
 		}
