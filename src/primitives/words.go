@@ -8,13 +8,13 @@ import (
 	"os"
 )
 
-// Fivegram is a Word with five letters
-type Fivegram [5]byte
+// Word is a Word with five letters
+type Word [5]byte
 
-// FromStr uses the first five bytes of the input string to populate a fivegram,
+// MakeWord uses the first five bytes of the input string to populate a fivegram,
 // if there are less than five, the remaining bytes are null
-func FromStr(s string) Fivegram {
-	res := Fivegram{}
+func MakeWord(s string) Word {
+	res := Word{}
 	input := []byte(s)
 	if len(input) < 5 {
 		input = append(input, make([]byte, 5-len(input))...)
@@ -26,8 +26,8 @@ func FromStr(s string) Fivegram {
 	return res
 }
 
-// Contains returns true if the Fivegram Contains the character
-func (f Fivegram) Contains(character byte) bool {
+// Contains returns true if the Word Contains the character
+func (f Word) Contains(character byte) bool {
 	for _, letter := range f {
 		if character == letter {
 			return true
@@ -36,8 +36,8 @@ func (f Fivegram) Contains(character byte) bool {
 	return false
 }
 
-// CheckGuess returns the Pattern when a guess is compared to any other Fivegram
-func (f Fivegram) CheckGuess(guess Fivegram) Pattern {
+// CheckGuess returns the Pattern when a guess is compared to any other Word
+func (f Word) CheckGuess(guess Word) Pattern {
 	p := DefPattern
 	for i := range p {
 		if f.Contains(guess[i]) {
@@ -52,7 +52,7 @@ func (f Fivegram) CheckGuess(guess Fivegram) Pattern {
 }
 
 // Dictionary is a collection of Fivegrams
-type Dictionary []Fivegram
+type Dictionary []Word
 
 // LoadWords pulls the content of the words file into memory
 func LoadWords() (dict Dictionary) {
@@ -71,7 +71,7 @@ func LoadWords() (dict Dictionary) {
 		if len(line) != 5 {
 			continue
 		}
-		var word Fivegram
+		var word Word
 		for i := range word {
 			word[i] = line[i]
 		}
@@ -85,8 +85,8 @@ func LoadWords() (dict Dictionary) {
 	return dict
 }
 
-// IndexOf returns the index of a Fivegram in the Dictionary
-func (d Dictionary) IndexOf(word Fivegram) (idx int, ok bool) {
+// IndexOf returns the index of a Word in the Dictionary
+func (d Dictionary) IndexOf(word Word) (idx int, ok bool) {
 	for i, w := range d {
 		if w == word {
 			return i, true
@@ -98,7 +98,7 @@ func (d Dictionary) IndexOf(word Fivegram) (idx int, ok bool) {
 
 // Result is the word and its corresponding pattern as compared to some input
 type Result struct {
-	Word    Fivegram
+	Word    Word
 	Pattern Pattern
 }
 

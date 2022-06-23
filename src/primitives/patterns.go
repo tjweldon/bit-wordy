@@ -23,6 +23,16 @@ const (
 
 const PatternCardinality = 243
 
+type PatternSpace [PatternCardinality]Pattern
+
+var PatternIndex = func() (pIndex PatternSpace) {
+	for i := range pIndex {
+		pIndex[i] = PatternFrom(i)
+	}
+
+	return pIndex
+}()
+
 // Pattern is the letter Result
 type Pattern [5]Color
 
@@ -64,7 +74,7 @@ func (p Pattern) Byte() byte {
 }
 
 func (p Pattern) String() string {
-	return Result{Word: FromStr("#####"), Pattern: p}.String()
+	return Result{Word: MakeWord("#####"), Pattern: p}.String()
 }
 
 var (
@@ -73,7 +83,7 @@ var (
 )
 
 // Matches computes the pattern for each word in the dictionary and returns them
-func Matches(guess Fivegram, dict Dictionary) ResultSet {
+func Matches(guess Word, dict Dictionary) ResultSet {
 	results := ResultSet{}
 	for _, word := range dict {
 		results = append(

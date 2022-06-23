@@ -14,7 +14,7 @@ import (
 type Solver struct {
 	possibleAnswers primitives.Dictionary
 	Game            *games.Game
-	Result          primitives.Fivegram
+	Result          primitives.Word
 }
 
 // NewSolver returns a reference to a new solver instance
@@ -36,7 +36,7 @@ func (s Solver) GameScore() int {
 
 // guessScore exists to simplify guess ranking logic
 type guessScore struct {
-	guess primitives.Fivegram
+	guess primitives.Word
 	score float64
 }
 
@@ -44,7 +44,7 @@ func (s *Solver) Solve() *games.Game {
 	var remainingAnswers primitives.Dictionary
 
 	// initialise the first guess (it's always the same)
-	guess := primitives.Fivegram{'t', 'a', 'r', 'e', 's'}
+	guess := primitives.Word{'t', 'a', 'r', 'e', 's'}
 
 	for {
 		// get pattern from guess
@@ -130,7 +130,7 @@ func (s *Solver) allCandidatesEliminated() error {
 //
 //      Information(guess) = -log2(nBefore/nAfter)
 //
-func Entropy(guess primitives.Fivegram, dict primitives.Dictionary) float64 {
+func Entropy(guess primitives.Word, dict primitives.Dictionary) float64 {
 	p := Probabilities(guess, dict)
 
 	bits := 0.0
@@ -149,7 +149,7 @@ func Entropy(guess primitives.Fivegram, dict primitives.Dictionary) float64 {
 // pattern by simulating every possible answer and counting the frequency of occurrence
 // of each pattern.
 func Probabilities(
-	guess primitives.Fivegram,
+	guess primitives.Word,
 	dict primitives.Dictionary,
 ) []float64 {
 	matches := primitives.Matches(guess, dict)
