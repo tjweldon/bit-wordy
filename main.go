@@ -28,10 +28,11 @@ func (p pair[T]) unpack() (T, T) {
 }
 
 type Patterns struct {
-	vocab        primitives.Dictionary
+	Vocab        primitives.Dictionary
 	index        *map[primitives.Word]int
 	patternCache [][]byte
 	patternIndex *primitives.PatternSpace
+	fastLog      *FastLog
 }
 
 // BuildPatterns is the computation of all comparisons and the storage of the results
@@ -49,7 +50,7 @@ func BuildPatterns(dict primitives.Dictionary) *Patterns {
 	}
 
 	p := &Patterns{
-		vocab:        dict,
+		Vocab:        dict,
 		patternCache: patternCache,
 	}
 	p.PopulateIndices(dict)
@@ -57,10 +58,10 @@ func BuildPatterns(dict primitives.Dictionary) *Patterns {
 }
 
 func (p *Patterns) PopulateIndices(vocab primitives.Dictionary) {
-	p.vocab = vocab
+	p.Vocab = vocab
 
 	p.index = &map[primitives.Word]int{}
-	for i, answer := range p.vocab {
+	for i, answer := range p.Vocab {
 		(*p.index)[answer] = i
 	}
 }
@@ -87,7 +88,8 @@ func LoadPatterns(dict primitives.Dictionary) (*Patterns, error) {
 	}
 
 	fresh.patternCache = c
-	fresh.PopulateIndices(words)
+	fresh.fastLog = NewFastLog(dict)
+	fresh.PopulateIndices(dict)
 
 	return &fresh, nil
 }
@@ -170,7 +172,7 @@ var fast = NewFastLog(words)
 // TL;DR: For the purposes of solving wordle, we are looking to maximise the change of entropy on receiving
 // the pattern and pruning answers. That amounts to choosing the guess with the greatest
 func (p Patterns) Entropies() []float64 {
-	wordCount := len(p.vocab)
+	wordCount := len(p.Vocab)
 
 	// for each guess, create the pattern frequency distribution
 	frequencies := make([][]int, wordCount)
@@ -214,7 +216,7 @@ func (p Patterns) GetBestGuess() (bestGuess primitives.Word, topScore float64) {
 		}
 	}
 
-	bestGuess = p.vocab[bestGuessId]
+	bestGuess = p.Vocab[bestGuessId]
 	return bestGuess, topScore
 }
 
@@ -227,13 +229,13 @@ func (p *Patterns) PruneAnswers(result primitives.Result) *Patterns {
 	idMap := []int{}
 	for ansId, pattern := range patternBytes {
 		if pattern == patternByte {
-			newVocab = append(newVocab, p.vocab[ansId])
+			newVocab = append(newVocab, p.Vocab[ansId])
 			idMap = append(idMap, ansId)
 		}
 	}
 
 	if len(newVocab) == 0 {
-		log.Fatal(fmt.Errorf("result %s gave no remaining answers after prune, from wordcount of %d", result, len(p.vocab)))
+		log.Fatal(fmt.Errorf("result %s gave no remaining answers after prune, from wordcount of %d", result, len(p.Vocab)))
 	}
 
 	// deriving the new pattern cache from the previous game state here is 3x faster
@@ -251,7 +253,7 @@ func (p *Patterns) PruneAnswers(result primitives.Result) *Patterns {
 		(*newIndex)[answer] = i
 	}
 
-	patterns := &Patterns{vocab: newVocab, index: newIndex, patternCache: newCache, patternIndex: p.patternIndex}
+	patterns := &Patterns{Vocab: newVocab, index: newIndex, patternCache: newCache, patternIndex: p.patternIndex}
 
 	// patterns := BuildPatterns(newVocab)
 	return patterns
@@ -264,7 +266,7 @@ type GuessOutcome struct {
 }
 
 func MakeOutcome(score float64, result primitives.Result, prev, current *Patterns) GuessOutcome {
-	before, after := len(prev.vocab), len(current.vocab)
+	before, after := len(prev.Vocab), len(current.Vocab)
 	return GuessOutcome{
 		res:          result,
 		expectedInfo: score,
