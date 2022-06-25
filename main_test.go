@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bit-wordy/src/cached"
 	"bit-wordy/src/primitives"
 	"testing"
 )
@@ -10,11 +11,11 @@ func TestIterate_Run(t *testing.T) {
 		Times int
 	}
 	type args struct {
-		p *Patterns
+		p *cached.Patterns
 	}
 	a := args{}
 	var err error
-	a.p, err = LoadPatterns(primitives.LoadWords())
+	a.p, err = cached.LoadPatterns(primitives.LoadWords())
 	if err != nil {
 		t.Errorf("Could not load patterns")
 	}
