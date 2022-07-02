@@ -167,7 +167,7 @@ func (p Patterns) Entropies() []float64 {
 		}
 	}
 
-	// for each guess, estimate the p(guess*ans=pattern)=Count(pattern)/Count(anwer
+	// for each guess, estimate the p(guess*ans=pattern)=Count(pattern)/Count(anwer)
 	entropies := make([]float64, wordCount)
 	for guessId, patternFreqs := range frequencies {
 		entropy := 0.0
@@ -180,9 +180,9 @@ func (p Patterns) Entropies() []float64 {
 
 			// this is P(pattern) = occurrences(pattern) / count(guesses)
 			probability := float64(patternCount) / float64(wordCount)
-			entropy += -(probability * (p.fastLog.Log2(patternCount) - p.fastLog.Log2(wordCount)))
-			// here we add the contribution of this outcome to the total for the guess
 			// entropy += -(p * math.Log2(p))
+			// here we add the contribution of this outcome to the total for the guess
+			entropy += -(probability * (p.fastLog.Log2(patternCount) - p.fastLog.Log2(wordCount)))
 		}
 		entropies[guessId] = entropy
 	}
